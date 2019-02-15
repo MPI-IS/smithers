@@ -457,7 +457,10 @@ namespace Smithers.Sessions
                 timestamps[4] = (DateTime.Now - start).Milliseconds;
 
                 start = DateTime.Now;
-                frameToWriteTo.Frame.UpdateBodyIndex(frame, _serializer);
+                if (_capturingShot.ShotDefinition.SerializationFlags.SerializeBodyIndex)
+                {
+                  frameToWriteTo.Frame.UpdateBodyIndex(frame, _serializer);
+                }
                 timestamps[5] = (DateTime.Now - start).Milliseconds;          
 
                 lock (_lockObject)
@@ -635,6 +638,8 @@ namespace Smithers.Sessions
                 writers.Add(new InfraredFrameWriter(frame, _serializer));
             if (serializationFlags.SerializeSkeleton && frame.Skeleton != null) 
                 writers.Add(new SkeletonWriter(frame, _serializer));
+            if (serializationFlags.SerializeBodyIndex && frame.Skeleton != null) 
+                writers.Add(new BodyIndexFrameWriter(frame, _serializer));
 
             return writers;
         }
