@@ -88,6 +88,7 @@ namespace Smithers.Sessions
         public bool SerializeInfrared;
         public bool SerializeSkeleton;
         public bool SerializeDepthMapping;
+        public bool SerializeBodyIndex;
 
         /// <summary>
         /// Constructor that assings the flags as they are passed in
@@ -96,13 +97,15 @@ namespace Smithers.Sessions
                                   bool depth,
                                   bool infrared,
                                   bool skeleton,
-                                  bool depthMapping)
+                                  bool depthMapping,
+                                  bool bodyIndex)
         {
             SerializeColor = color;
             SerializeDepth = depth;
             SerializeInfrared = infrared;
             SerializeSkeleton = skeleton;
             SerializeDepthMapping = depthMapping;
+            SerializeBodyIndex = bodyIndex;
         }
     }
 
@@ -137,7 +140,7 @@ namespace Smithers.Sessions
         { 
             get 
             { 
-                return new SerializationFlags(true, true, true, true, false);
+                return new SerializationFlags(true, true, true, true, false, true);
             }
         } 
     }
@@ -177,6 +180,8 @@ namespace Smithers.Sessions
         where TShotDefinition : ShotDefinition
         where TSavedItem : SavedItem
     {
+        public DateTime StartTime { get; set; }
+
         public Shot() {
             this.SavedItems = new List<TSavedItem>();
         }

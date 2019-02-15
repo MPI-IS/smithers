@@ -65,31 +65,36 @@ namespace Smithers.Serialization
         /// </summary>
         /// <param name="frame"></param>
         /// <param name="serializer"></param>
-        public void Update(LiveFrame frame, FrameSerializer serializer)
+        public void UpdateColor(LiveFrame frame, FrameSerializer serializer)
         {
-            // (1) Depth mapping
-
-            // TODO: Dont serialize this
-            _depthMapping = serializer.CaptureMappedFrame(frame, _bufferDepthMapping);
-
-            // (2) Depth
-            _depth = serializer.CaptureDepthFrameBitmap(frame, _bufferDepth);
-            _depth.Item1.Freeze();
-
-            // (3) Infrared
-            _infrared = serializer.CaptureInfraredFrameBitmap(frame, _bufferInfrared);
-            _infrared.Item1.Freeze();
-
-            // (4) Skeleton
-            _skeleton = serializer.SerializeSkeletonData(frame);
-
-            // (5) Color
             _color = serializer.CaptureColorFrameBitmap(frame, _bufferColor);
-            _color.Item1.Freeze();
+        }
 
-            // (6) Body index
-            _bodyIndex = serializer.CaptureBodyIndexFrameBitmap(frame, _bufferBodyIndex);
-            _bodyIndex.Item1.Freeze();
+        public void UpdateDepthMapping(LiveFrame frame, FrameSerializer serializer)
+        {
+          _depthMapping = serializer.CaptureMappedFrame(frame, _bufferDepthMapping);
+        }
+
+        public void UpdateDepth(LiveFrame frame, FrameSerializer serializer)
+        {
+          _depth = serializer.CaptureDepthFrameBitmap(frame, _bufferDepth);
+          _depth.Item1.Freeze();
+        }
+        public void UpdateInfrared(LiveFrame frame, FrameSerializer serializer)
+        {
+          _infrared = serializer.CaptureInfraredFrameBitmap(frame, _bufferInfrared);
+          _infrared.Item1.Freeze();
+        }
+
+        public void UpdateSkeleton(LiveFrame frame, FrameSerializer serializer)
+        {
+          _skeleton = serializer.SerializeSkeletonData(frame);
+        }
+
+        public void UpdateBodyIndex(LiveFrame frame, FrameSerializer serializer)
+        {
+          _bodyIndex = serializer.CaptureBodyIndexFrameBitmap(frame, _bufferBodyIndex);
+          _bodyIndex.Item1.Freeze();
         }
 
         public void Clear()
@@ -105,7 +110,21 @@ namespace Smithers.Serialization
         public Tuple<Blkd, TimeSpan> MappedDepth { get { return _depthMapping; } }
         public Tuple<BitmapSource, TimeSpan> Depth { get { return _depth; } }
         public Tuple<BitmapSource, TimeSpan> Infrared { get { return _infrared; } }
-        public Tuple<BitmapSource, TimeSpan> Color { get { return _color; } }
+        public Tuple<BitmapSource, TimeSpan> Color 
+        { 
+            get 
+            {
+                if (_color.Item1 == null)
+                {
+                    BitmapSource result = FrameSerializer.CreateColorBitmap(_bufferColor, Frame.COLOR_WIDTH, Frame.COLOR_HEIGHT);
+                    result.Freeze();
+                    _color = new Tuple<BitmapSource, TimeSpan>(result, _color.Item2);
+                }
+               
+                 return _color;
+               
+            } 
+        }
         public Tuple<BitmapSource, TimeSpan> BodyIndex { get { return _bodyIndex; } }
         public Tuple<object, TimeSpan> Skeleton { get { return _skeleton; } }
     }
